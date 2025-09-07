@@ -7516,7 +7516,7 @@ a.anchor-link {
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Sequence-Decomposition">Sequence Decomposition<a class="anchor-link" href="#Sequence-Decomposition">¶</a></h1><h2 id="By-Jacob-Spigelman-(jmspigelman@gmail.com)">By Jacob Spigelman (jmspigelman@gmail.com)<a class="anchor-link" href="#By-Jacob-Spigelman-(jmspigelman@gmail.com)">¶</a></h2>
+<h1 id="Sequence-Decomposition">Sequence Decomposition<a class="anchor-link" href="#Sequence-Decomposition">¶</a></h1><h2 id="By-Jacob-Spigelman-(jmspigelman@gmail.com)">By <a href="https://www.linkedin.com/in/jacob-spigelman-9b98b1269">Jacob Spigelman</a> (jmspigelman@gmail.com)<a class="anchor-link" href="#By-Jacob-Spigelman-(jmspigelman@gmail.com)">¶</a></h2>
 </div>
 </div>
 </div>
@@ -7892,12 +7892,59 @@ where $\alpha=e^{\frac{2}{3}j\pi}$.</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p>Great, so we've managed to decompose our unbalanced system into 4 DC values, $q+, q-, d+, d-$. This effectively turns our system into an <a href="https://en.wikipedia.org/wiki/Linear_time-invariant_system">LTI System</a>, which is incredibly useful from a control system perspective. And that's it for combining sequence-component and $dq0$ transformations.</p>
-<h1 id="Transformations-in-practice">Transformations in practice<a class="anchor-link" href="#Transformations-in-practice">¶</a></h1><p>Now, it's one thing to apply these transformations when we know the phasor values upfront. But in practice, all you would have available to you are the instantaneous voltage and current measurements on each of your phases. From these you would need to determine the phase-angle and magnitude of each of these phases before you could proceed. There are a whole host of ways that you could do this. The most popular way that people do this for the purposes of assessing S5.2.5.5 is by using an FFT block, but there are many other options like DSOGI, Delayed-Signal-Cancellation (DSC), and others.</p>
+<h1 id="Transformations-in-practice">Transformations in practice<a class="anchor-link" href="#Transformations-in-practice">¶</a></h1><p>Now, it's one thing to apply these transformations when we know the phasor values upfront. But in practice, all you would have available to you are the instantaneous voltage and current measurements on each of your phases. From these you would need to determine the phase-angle and magnitude of each of these phases before you could proceed. There are a whole host of ways that you could do this. The most popular way that people do this for the purposes of assessing S5.2.5.5 at the Point of Connection is by using an FFT block, but there are many other options like DSOGI, Delayed-Signal-Cancellation (DSC), and others.</p>
+<p>One thing to note, however, is that these transformations require you to know the exact magnitude and phase of each of the three phases in your system before you can reliably apply them; that is, the accuracy/relevance of these transformations is inherently dependent on the accuracy with which you can measure the frequency content of your three phases.</p>
+<p>This means that these transformations also suffer from the <a href="https://www.math.stonybrook.edu/~bishop/classes/math533.S21/Notes/Folland_uncertainty.pdf">Fourier Uncertainty Principle</a>, so there is a fundamental tradeoff between how accurately we can determine the frequency content of a signal, and how well we can localise that frequency content to a specific period in time. In simple terms, it means we can very accurately determine the frequency content of a signal over a broad(ish) range of time, or we can vaguely determine the frequency content of a signal over a very narrow period of time, but we cannot very accurately determine the frequency content of a signal over a very narrow period of time. <strong>This is a fundamental physical limitation which cannot be overcome, no matter how quick or fancy your measurement equipment is, unless you make some underlying assumptions about the frequency content of the signal (i.e. Prony's Method, Synchrosqueezing, etc).</strong></p>
+<p>We can look at a simple frequency analysis case to see the Uncertainty Principle in action. Let's build a signal that is composed of the sum of two distinct and varying frequency components. Let's see what it looks like in both the time and frequency domains.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput" id="cell-id=f03e82e7">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5a4c9473">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><img alt="TrueFreq" src="images/stft/true_freq.png"/></p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0697c117">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=99168cb9">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>So we're able to know the exact frequency content of the signals in this contrived example, because we built the signal. But let's say that you measured the signal above in the field and you were then tasked with determining the frequency content at each point in time as accurately as possible. One way you could do this is by using a Short-Time-Fourier-Transform (STFT) - basically just chopping the signal up into small chunks and applying a separate FFT to each of them. But what size should you make the chunks (or windows is another word for them)? Well if you want really good temporal resolution, you'll want these windows to be as small as possible (so each 'point in time' is as small as possible).</p>
+<p>But what implication does a smaller window size have on your spectral resolution? To investigate this, I've animated the effect of varying window size on the spectrogram for the signal above. Let's see what happens to the spectrogram as we vary the window size.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs jp-mod-noInput" id="cell-id=69b78c97">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7f501c8e">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><img alt="VaryingWindows" src="animations/stft/varying_windows.gif"/></p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a827bf9b">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Ok, so here we can clearly see the Uncertainty Principle in action. When we have a really small window (high temporal resolution), the spectrogram just shows an indistict mass of frequencies (low spectral resolution). But as we crank up the window size (worse temporal resolution), the two distinct frequency curves start to get more and more resolved (better spectral resolution).</p>
+<h2 id="Implications-of-the-Uncertainty-Principle-on-$dq0$">Implications of the Uncertainty Principle on $dq0$<a class="anchor-link" href="#Implications-of-the-Uncertainty-Principle-on-$dq0$">¶</a></h2><p>Given that the $dq0$ transformation requires you to know the spectral content of your three phases, the quantities it produces are in turn likewise constrained by the Uncertainty Principle. That is, <strong>there is a fundamental tradeoff between lag and certainty-of-accuracy in your online $I_d, I_q$ measurements.</strong> Therefore, having a temporal requirement on $I_q$ - like commencement/rise/settling times in S5.2.5.5 of the NER - without very explicity defining the method of performing the frequency extraction is, in my opinion, dubious, since one can choose to sacrifice certainty-of-accuracy in favour of a 'quicker' response. If you want to see this in action, try using a quarter-wave-DSC method for calculating S5.2.5.5 $I_q$ rise-time, and you'll likely see a ~20ms improvement in commencement-time versus using the standard FFT decomposition method.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7ef73297">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
